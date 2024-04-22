@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            background-color: #EAF2F8;
+            font-family: Arial, sans-serif;
+            line-height: 1.5;
+            margin: 0;
+            padding: 0;
+        }
+        h2 {
+            color: #34495E;
+            margin-bottom: 10px;
+        }
+        .container {
+            width: 80%; /* Set container width to 80% of the viewport */
+            margin: 0 auto; /* Center the container horizontally */
+            padding: 20px 0; /* Add padding to the top and bottom */
+        }
+        .form-container {
+            background-color: #FEF9E7;
+            padding: 15px;
+            width: 60%; /* Set form width to 60% of the container */
+            margin: 0 auto; /* Center the form horizontally */
+        }
+        .row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            margin: 0 5px;
+        }
+        label {
+            margin-bottom: 0.3rem;
+            font-weight: bold;
+            color: #5D6D7E;
+        }
+      input[type="text"], input[type="date"], select, input[type="radio"], input[type="checkbox"] {
+            padding: 8px;
+            margin-top: 0.3rem;
+            border-radius: 5px;
+            border: 1px solid #BFC9CA;  
+        }
+        .button-group {
+            text-align: center;
+            margin-top: 30px;
+        }
+        button, input[type="reset"] {
+            background-color: #48C9B0;
+            border: none;
+            color: white;
+            padding: 10px 15px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover, input[type="reset"]:hover {
+            background-color: #148F77;
+        }
+        .prediction {
+            text-align: center;
+            margin-top: 30px;
+            color: #34495E;
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+    </style>
+        <script>
+            function submitForm() {
+                // Fetch input values
+                var storeId = document.getElementById("store_id").value;
+                var forecastDate = document.getElementById("forecast_date").value;
+                var storeNumber = document.getElementById("store_number").value;
+                var onPromotion = document.getElementById("on_promotion").checked;
+                var familyDepartment = document.getElementById("family_department").value;
+    
+                // Prepare data payload
+                var data = {
+                    "forecast_date": forecastDate,
+                    "store_number": storeNumber,
+                    "on_promotion": onPromotion,
+                    "family_department": familyDepartment
+                };
+    
+                // Construct API request
+                const apiUrl = "https://sales-prediction-uvelh.eastus.inference.ml.azure.com/score";
+                const apiRequest = new Request(apiUrl, {
+                    method: "POST",
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data),
+                });
+    
+                // Send API request
+                fetch(apiRequest)
+                    .then((response) => {
+                        if (!response.ok) {
+                            throw new Error("Network response was not ok");
+                        }
+                        return response.json();
+                    })
+                    .then((data) => {
+                        console.log(data);
+                        const resultBody = document.getElementById('result-body');
+                        resultBody.innerHTML = "<p>The Predicted Sales is: " + data.prediction + "</p>";
+                    })
+                    .catch((error) => {
+                        console.error(
+                            "There was a problem with the API request:",
+                            error.message
+                        );
+                        // Handle API request error
+                    });
+            }
+        </script>
+</head>
+<body>
+    <div class="container">
+        <center>
+            <h2>Retail Store Sales Predictions</h2>
+            <p>Amplify your sales strategy</p>
+        </center>
+        <div class="form-container">
+            <form id="myForm">
+                <div class="row">
+                    <div class="form-group" style="flex: 1;">
+                        <label for="store_number">Store Number:</label>
+                        <input type="text" id="store_number" name="store_number">
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label for="family_department">Family / Department:</label>
+                        <select id="family_department" name="family_department">
+                            <option value="AUTOMOTIVE">AUTOMOTIVE</option>
+                            <option value="BABY CARE">BABY CARE</option>
+                            <!-- Add more options -->
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group" style="flex: 2;">
+                        <label for="forecast_date">Forecast Date:</label>
+                        <input type="date" id="forecast_date" name="forecast_date">
+                    </div>
+                    <div class="form-group" style="flex: 1; align-self: flex-end;">
+                        <label for="on_promotion">On Promotion:</label>
+                        <div>
+                            Yes <input type="radio" id="on_promotion_yes" name="on_promotion" value="yes">                
+                            No <input type="radio" id="on_promotion_no" name="on_promotion" value="no">
+                        </div>
+                    </div>
+                </div>
+                <div class="button-group">
+                    <button type="button" onclick="submitForm()">Submit</button>
+                    <input type="reset" value="Reset">
+                </div>
+                <div class="prediction">
+                    The Predicted Sales is: <span id="result-body"></span>
+                </div>
+
+            </form>
+        </div>
+    </div>
+    <script>
+        // Existing JavaScript logic and functionality
+    </script>
+</body>
+</html>
